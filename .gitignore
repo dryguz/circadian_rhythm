@@ -1,1 +1,3 @@
-.spyproject/
+credentials.csv
+.spyproject
+.idea
