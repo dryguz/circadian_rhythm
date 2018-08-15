@@ -132,7 +132,11 @@ callback = CustomJS(args=dict(source=source1), code=
                     var f = cb_obj.value
                     var x = data['index']
                     var y = data['display']
+                    if (f < 10 ) {
                     date = data['2017/0' + f + '/15']
+                    } else {
+                    date = data['2017/' + f + '/15']
+                    }
                     for(var i = 0; i < x.length; i++) {
                      y[i] =  date[i]
                     }
