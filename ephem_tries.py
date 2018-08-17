@@ -42,11 +42,7 @@ rises = pd.DataFrame(index=places, columns=dates)
 settings = pd.DataFrame(index=places, columns=dates)
 transits = pd.DataFrame(index=places, columns=dates)
 
-#tuples = list(zip(np.repeat(dates, 3),['rise','transit','setting']*12))
-#index = pd.MultiIndex.from_tuples(tuples, names=['date','time_of_day'])
-#iterables = [dates, ['rise','transit','setting']]
-#index = pd.MultiIndex.from_product(iterables, names=['date','time_of_day'])
-#data = pd.DataFrame(index=index, columns=places)
+
 
 for place in places:
     for date in dates:
@@ -83,22 +79,6 @@ y1 = rises.iloc[:,0]
 y2 = transits.iloc[:,0]
 y3 = settings.iloc[:,0]
 
-# construction of plot
-p = figure(plot_width=600, plot_height=500, x_range=places, y_axis_type='datetime')
-
-p.circle(x, y1, size=15, color='navy', legend='Rise')
-p.line(x, y1, line_width=2, legend="Rise")
-
-p.square(x, y2, size=15, color='orangered', legend='Transit')
-p.line(x, y2, line_width=2, color='orangered', legend='Transit')
-
-p.circle(x,y3, size=15, color='peru', legend='Setting')
-p.line(x, y3, line_width=2, color='peru', legend='Setting')
-
-p.legend.location = "bottom_left"
-
-#show(p)
-
 # create some widgets
 
 button_group = RadioButtonGroup(labels=["Rise", "Transition", "Set"], active=0)
@@ -116,33 +96,44 @@ source3 = ColumnDataSource(settings)
 q = figure(plot_width=600, plot_height=500, x_range=places, y_axis_type='datetime')
 
 q.circle(x='index', y='display', size=15, color='navy', legend='Rise', source=source1)
-#q.line(x, y1, line_width=2, legend="Rise", source=source)
+q.line(x='index', y='display', line_width=2, legend="Rise", source=source1)
 
-#q.square(x, y2, size=15, color='orangered', legend='Transit', source=source)
-#q.line(x, y2, line_width=2, color='orangered', legend='Transit', source=source)
+q.square(x='index', y='display', size=15, color='orangered', legend='Transit', source=source2)
+q.line(x='index', y='display', line_width=2, color='orangered', legend='Transit', source=source2)
 
-#q.circle(x,y3, size=15, color='peru', legend='Setting', source=source)
-#q.line(x, y3, line_width=2, color='peru', legend='Setting', source=source)
+q.circle(x='index', y='display', size=15, color='peru', legend='Setting', source=source3)
+q.line(x='index', y='display', line_width=2, color='peru', legend='Setting', source=source3)
 
-#q.legend.location = "bottom_left"
+q.legend.location = "bottom_left"
 
-callback = CustomJS(args=dict(source=source1), code=
+callback = CustomJS(args=dict(source1=source1, source2=source2, source3=source3), code=
                     """
-                    var data = source.data
+                    var data1 = source1.data
+                    var data2 = source2.data
+                    var data3 = source3.data
                     var f = cb_obj.value
-                    var x = data['index']
-                    var y = data['display']
+                    var x = data1['index']
+                    var y1 = data1['display']
+                    var y2 = data2['display']
+                    var y3 = data3['display']
                     if (f < 10 ) {
-                    date = data['2017/0' + f + '/15']
+                    date = '2017/0' + f + '/15'
                     } else {
-                    date = data['2017/' + f + '/15']
+                    date = '2017/' + f + '/15'
                     }
+                    change1 = data1[date]
+                    change2 = data2[date]
+                    change3 = data3[date]
                     for(var i = 0; i < x.length; i++) {
-                     y[i] =  date[i]
+                     y1[i] = change1[i]
+                     y2[i] = change2[i]
+                     y3[i] = change3[i]
                     }
-                    source.change.emit()
+                    source1.change.emit()
+                    source2.change.emit()
+                    source3.change.emit()
                     """
                     )
 slider = Slider(start=1, end=12, value=1, step=1, title="Month Slider")
 slider.js_on_change('value', callback)
-show(column(p, q, widgetbox(slider, button_group, width=600)))
+show(column(q, widgetbox(slider, button_group, width=600)))
