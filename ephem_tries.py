@@ -65,7 +65,7 @@ for place in places:
 
 from bokeh.layouts import widgetbox, column
 from bokeh.models import ColumnDataSource, CustomJS
-from bokeh.models.widgets import Button, RadioButtonGroup, Select, Slider
+from bokeh.models.widgets import Button, CheckboxButtonGroup, Select, Slider
 from bokeh.plotting import figure, output_file, show
 
 
@@ -81,7 +81,7 @@ y3 = settings.iloc[:,0]
 
 # create some widgets
 
-button_group = RadioButtonGroup(labels=["Rise", "Transition", "Set"], active=0)
+
 # select = Select(title="Option:", value="Paris", options=places)
 
 # with ColumnDataSource
@@ -105,8 +105,10 @@ q.circle(x='index', y='display', size=15, color='peru', legend='Setting', source
 q.line(x='index', y='display', line_width=2, color='peru', legend='Setting', source=source3)
 
 q.legend.location = "bottom_left"
+q.legend.click_policy="hide"
 
-callback = CustomJS(args=dict(source1=source1, source2=source2, source3=source3), code=
+
+callback_slider = CustomJS(args=dict(source1=source1, source2=source2, source3=source3), code=
                     """
                     var data1 = source1.data
                     var data2 = source2.data
@@ -135,5 +137,9 @@ callback = CustomJS(args=dict(source1=source1, source2=source2, source3=source3)
                     """
                     )
 slider = Slider(start=1, end=12, value=1, step=1, title="Month Slider")
-slider.js_on_change('value', callback)
-show(column(q, widgetbox(slider, button_group, width=600)))
+slider.js_on_change('value', callback_slider)
+
+#button_group = CheckboxButtonGroup(labels=["Rise", "Transition", "Set"], active=[0,1,2])
+#button_group.js_on_change('active', callback_button)
+
+show(column(q, widgetbox(slider, width=600)))
